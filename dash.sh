@@ -47,7 +47,10 @@ TEMP_REPO="/tmp/ak-nobita-bot"
 ZIP_NAME="copy-from-me.zip"
 REPO_URL="https://github.com/nobita586/ak-nobita-bot.git"
 
-print_header "STARTING THEME INSTALLATION"
+# Welcome message
+print_header "Welcome to Nebula Theme Installer"
+echo -e "${CYAN}This installer is created and maintained by Alakreb.${NC}"
+sleep 2
 
 # Clean temp
 print_status "Cleaning temporary files"
@@ -62,18 +65,19 @@ animate_progress $! "Cloning repository"
 check=$?
 if [ $check -eq 0 ]; then print_success "Repository cloned"; else print_error "Clone failed"; exit 1; fi
 
-# Check ZIP
+# Check ZIP inside src
 ZIP_FILE="$TEMP_REPO/src/$ZIP_NAME"
 if [ -f "$ZIP_FILE" ]; then
-    print_success "$ZIP_NAME found"
+    print_success "$ZIP_NAME found in src folder"
 else
-    print_error "$ZIP_NAME not found!"
+    print_error "$ZIP_NAME not found inside src!"
     rm -rf "$TEMP_REPO"
     exit 1
 fi
 
 # Move ZIP
 print_status "Moving $ZIP_NAME to $TARGET_DIR"
+mkdir -p "$TARGET_DIR"
 mv "$ZIP_FILE" "$TARGET_DIR/" > /dev/null 2>&1 &
 animate_progress $! "Moving ZIP"
 check=$?
@@ -112,6 +116,8 @@ animate_progress $! "Optimizing"
 check=$?
 if [ $check -eq 0 ]; then print_success "Optimize cleared"; else print_error "Optimize failed"; exit 1; fi
 
+# Completion message
 print_header "INSTALLATION COMPLETE"
-echo -e "${GREEN}🎉 Theme installed and Laravel commands executed successfully by Alakreb ${NC}"
+echo -e "${GREEN}🎉 Theme installed successfully!${NC}"
+echo -e "${CYAN}Installer created and maintained by Alakreb.${NC}"
 read -p "$(echo -e "${YELLOW}Press Enter to exit...${NC}")" -n 1
