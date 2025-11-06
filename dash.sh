@@ -113,5 +113,5 @@ check=$?
 if [ $check -eq 0 ]; then print_success "Optimize cleared"; else print_error "Optimize failed"; exit 1; fi
 
 print_header "INSTALLATION COMPLETE"
-echo -e "${GREEN}🎉 Theme installed and Laravel commands executed successfully!${NC}"
+echo -e "${GREEN}🎉 Theme installed and Laravel commands executed successfully by Alakreb ${NC}"
 read -p "$(echo -e "${YELLOW}Press Enter to exit...${NC}")" -n 1
