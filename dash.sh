@@ -1,4 +1,4 @@
-here#!/bin/bash
+#!/bin/bash
 
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -22,9 +22,9 @@ animate_progress() {
     local message=$2
     local delay=0.1
     local spinstr='|/-\'
-    
+
     print_status "$message"
-    while [ "$(ps a | awk '{print $1}' | grep $pid)" ]; do
+    while kill -0 "$pid" 2>/dev/null; do
         local temp=${spinstr#?}
         printf " [%c]  " "$spinstr"
         spinstr=$temp${spinstr%"$temp"}
@@ -55,7 +55,9 @@ print_success "Temporary directory ready"
 
 print_status "Cloning repository from GitHub"
 git clone "$REPO_URL" "$TEMP_REPO" > /dev/null 2>&1 &
-animate_progress $! "Cloning repository"
+pid=$!
+animate_progress $pid "Cloning repository"
+wait $pid
 check=$?
 if [ $check -eq 0 ]; then print_success "Repository cloned"; else print_error "Clone failed"; exit 1; fi
 
@@ -64,7 +66,6 @@ if [ -f "$ZIP_FILE" ]; then
     print_success "$ZIP_NAME found at $ZIP_FILE"
 else
     print_error "$ZIP_NAME not found inside $TEMP_REPO/src!"
-    echo "Current src contents:"
     ls -l "$TEMP_REPO/src/"
     rm -rf "$TEMP_REPO"
     exit 1
@@ -73,14 +74,18 @@ fi
 print_status "Moving $ZIP_NAME to $TARGET_DIR"
 mkdir -p "$TARGET_DIR"
 mv "$ZIP_FILE" "$TARGET_DIR/" > /dev/null 2>&1 &
-animate_progress $! "Moving ZIP"
+pid=$!
+animate_progress $pid "Moving ZIP"
+wait $pid
 check=$?
 if [ $check -eq 0 ]; then print_success "ZIP moved"; else print_error "Move failed"; exit 1; fi
 
 cd "$TARGET_DIR" || exit 1
 print_status "Extracting $ZIP_NAME"
 unzip -o "$ZIP_NAME" > /dev/null 2>&1 &
-animate_progress $! "Extracting ZIP"
+pid=$!
+animate_progress $pid "Extracting ZIP"
+wait $pid
 check=$?
 if [ $check -eq 0 ]; then print_success "ZIP extracted"; else print_error "Extraction failed"; exit 1; fi
 
@@ -96,13 +101,17 @@ cd "$TARGET_DIR" || exit 1
 
 print_status "Running php artisan migrate"
 php artisan migrate > /dev/null 2>&1 &
-animate_progress $! "Migrating database"
+pid=$!
+animate_progress $pid "Migrating database"
+wait $pid
 check=$?
 if [ $check -eq 0 ]; then print_success "Migration completed"; else print_error "Migration failed"; exit 1; fi
 
 print_status "Running php artisan optimize:clear"
 php artisan optimize:clear > /dev/null 2>&1 &
-animate_progress $! "Optimizing"
+pid=$!
+animate_progress $pid "Optimizing"
+wait $pid
 check=$?
 if [ $check -eq 0 ]; then print_success "Optimize cleared"; else print_error "Optimize failed"; exit 1; fi
 
